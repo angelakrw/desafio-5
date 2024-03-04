@@ -1,26 +1,22 @@
 import { FlatList, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import ProductItem from '../Components/ProductItem'
-import allProducts from '../Data/products.json'
 import Search from '../Components/Search'
+import { useSelector } from 'react-redux'
+import ShopReducer from '../features/shop/shopSlice'
 
-const ItemListCategories = ({route, navigation}) => {
+const ItemListCategories = ({navigation}) => {
 
+    const productsFilteredByCategory = useSelector(state => state.shopReducer.value.productsFilteredByCategory)
     const [products, setProducts] = useState([])
     const [keyword, setKeyword] = useState('')
 
-    const {category} = route.params
-
     useEffect(() => {
-        if (category) {
-            const products = allProducts.filter(product => product.category === category)
-            const productsFiltered = products.filter(product => product.title.toLowerCase().includes(keyword.toLowerCase()))
-            setProducts(productsFiltered)
-        } else {
-            const productsFiltered = allProducts.filter(product => product.title.toLowerCase().includes(keyword.toLowerCase()))
-            setProducts(productsFiltered)
-        }
-    }, [category, keyword])
+      const productsFiltered = productsFilteredByCategory.filter((product) =>
+      product.title.toLowerCase().includes(keyword.toLowerCase())
+      )
+      setProducts(productsFiltered)
+    }, [productsFilteredByCategory, keyword])
 
     return (
         <>
@@ -28,7 +24,12 @@ const ItemListCategories = ({route, navigation}) => {
             <View style={styles.container}>
                 <FlatList
                     data={products}
-                    renderItem={({item}) => <ProductItem item={item}/>}
+                    renderItem={({item}) => (
+                        <ProductItem 
+                            item={item}
+                            navigation={navigation} />
+                        
+                    )}
                     keyExtractor={item => item.id}
                 />
             </View>
